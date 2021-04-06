@@ -1,3 +1,6 @@
+# Beka additions
+*.Rproj
+
 # History files
 .Rhistory
 .Rapp.history
