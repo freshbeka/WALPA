@@ -16,21 +16,30 @@ gs_url <- "https://docs.google.com/spreadsheets/d/1lAIe_L0U2ZqsYM1pPdAvXbbP4ravF
 ## read from URL
 survey.messy <-read_sheet(gs_url)
 
-## The below row may be needed to authorize for reading non-public sheet, then the previous lines can be tried again
-gs4_auth(email = rebekahstiling@gmail.com) 
-##If you are not Beka, use your email address (assuming you have permission to access the WALPA google drive)
+## The below row may be needed to authorize for reading non-public sheet
+# gs4_auth(email = rebekahstiling@gmail.com) #Use your email address (assuming you have permission to access the WALPA google drive)
 
 head(survey.messy)
 
+#### Ages plot ####
+
+#isolate ages data
 ages <- survey.messy %>% 
   select('16) Which category below includes your age?') %>% #select only the age data
-  rename (age_groups = '16) Which category below includes your age?') #rename the column something reasonable
+  rename (age_groups = '16) Which category below includes your age?') #rename the column to something reasonable
 
 age.data <-ages %>% 
   group_by(age_groups) %>% #group results into bins
   summarise(n = n()) %>% #summarize the counts for each bin
-  filter(age_groups != "Prefer not to answer")
+  filter(age_groups != "Prefer not to answer") #remove no answer
 
-#create plots
-ggplot(age.data, aes(x= age_groups, y=n)) +
-  geom_bar(stat = "identity")
+#create plot
+p1<-ggplot(age.data, aes(x= age_groups, y=n)) +
+  geom_bar(stat = "identity") +
+  scale_y_continuous(breaks = c(2,4,6,8,10)) +
+  theme_classic() +
+  labs(x= "age group", y = "number of respondents")
+
+ggsave("WALPA_survey_age.png", p1, width = 3.25, height = 3.25, units = "in")
+ggsave("WALPA_survey_age.jpeg", p1, width = 3.25, height = 3.25, units = "in")
+
