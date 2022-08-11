@@ -83,15 +83,16 @@ bel.att.data$conf <- factor(bel.att.data$conf,
 
 #now I am going to combine responses to better reflect Angela's table.
 
-p2<-ggplot(bel.att.data, aes(x = reorder(belong, -n), y = n, fill=conf)) +
+p2<-ggplot(bel.att.data, aes(x = reorder(belong, -n), y = n, fill=conf, label = n)) +
   geom_bar(stat = "identity") +
+  geom_text(position = position_stack(vjust = 0.5), color = "white") +  
   theme_classic() +
   scale_fill_manual(values = c("#009063", "#2d2929", "#008fc9", "#f6d894")) +
   labs(x= "Do you feel like you are\npart of the WALPA community?", 
        y = "number of respondents",
        fill='How often do you attend\nWALPA annual conferences?') 
 p2
-ggsave("WALPA_survey_belongConf.png", p2, width = 5, height = 3.25, units = "in")
-ggsave("WALPA_survey_belongConf.jpeg", p2, width = 5, height = 3.25, units = "in")
+ggsave("WALPA_survey_belongConf.png", p2, width = 7, height = 3.5, units = "in")
+ggsave("WALPA_survey_belongConf.jpeg", p2, width = 5, height = 3.5, units = "in")
 
 
