@@ -8,8 +8,6 @@
 ## load the relevant packages
 library(googlesheets4) # To import data directly from google
 library(tidyverse) #to tidy and plot the data
-library(patchwork) #to make multi-panel plot
-
 
 ## Color picker colors for WALPA  
 #water: #008fc9
