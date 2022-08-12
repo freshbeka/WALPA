@@ -8,6 +8,7 @@
 ## load the relevant packages
 library(googlesheets4) # To import data directly from google
 library(tidyverse) #to tidy and plot the data
+library(patchwork) #to make multi-panel plot
 
 
 ## Color picker colors for WALPA  
@@ -52,8 +53,8 @@ p1<-ggplot(age.data, aes(x= age_groups, y=n)) +
   theme_classic() +
   labs(x= "age group", y = "number of respondents")
 p1
-ggsave("WALPA_survey_age.png", p1, width = 3.25, height = 3.25, units = "in")
-ggsave("WALPA_survey_age.jpeg", p1, width = 3.25, height = 3.25, units = "in")
+ggsave("WALPA_survey_age.png", p1, width = 4, height = 3.25, units = "in")
+ggsave("WALPA_survey_age.jpeg", p1, width = 4, height = 3.25, units = "in")
 
 #### Belonging and Conf attendance plot ####
 
@@ -99,7 +100,7 @@ ggsave("WALPA_survey_belongConf.jpeg", p2, width = 7, height = 3.5, units = "in"
 
 #### Belonging and Membership plot ####
 
-#isolate belonging and attendance data
+#isolate belonging and membership data
 belong.mem <- survey.messy %>% 
   select('7) Do you feel like you are part of the WALPA community?','10) How long have you been a member of WALPA? Recall that a member includes anyone that received this survey.' ) %>% #select belonging and conf data
   rename (belong = '7) Do you feel like you are part of the WALPA community?', 
@@ -143,3 +144,73 @@ p3<-ggplot(bel.mem.data, aes(x = belong, y = n, fill=mem, label = n)) +
 p3
 ggsave("WALPA_survey_belongMember.png", p3, width = 7, height = 3.5, units = "in")
 ggsave("WALPA_survey_belongMember.jpeg", p3, width = 7, height = 3.5, units = "in")
+
+#### Focus for the Future ####
+
+#isolate future focus data
+outreach <- survey.messy %>% 
+  select(c(10)) %>%  #I used column numbers
+  rename ("Outreach" = 1)
+
+#interesting, so each value is embedded in a list. I'm not sure what to do about that.
+o.df <- as.data.frame(unlist(outreach)) #unlist is the solution
+
+#isolate future focus data
+conference <- survey.messy %>% 
+  select(c(12)) %>%  #I used column numbers
+  rename ("conf" = 1)
+
+#interesting, so each value is embedded in a list. I'm not sure what to do about that.
+con.df <- as.data.frame(unlist(conference)) #unlist is the solution
+
+#put the two dfs back together (I'm sure there was a better way to do this!)
+comp.data <-cbind(o.df, con.df)
+
+Q3.data <-as_tibble(comp.data) %>% 
+  rename("Public outreach/education" = "unlist(outreach)",
+         "Host conference" = "unlist(conference)")
+
+Q3.tidy <-Q3.data %>% pivot_longer(cols=c(1,2), names_to = "repondant", values_to = "score")
+
+# Q3.tidy<-Q3.tidy %>% mutate(score = case_when( 
+#   score == "1 (most important)"  ~ "1" , 
+#   score == "7 (least important)"  ~ "7", 
+#   TRUE ~ score))
+
+Q3.sum<-Q3.tidy %>% 
+  group_by(repondant, score) %>% 
+  summarise(n = n()) %>% 
+  drop_na()
+
+p4<-ggplot(Q3.sum, aes(x = score, y = n, fill = score)) +
+  geom_bar(stat = "identity") + 
+  facet_wrap(~fct_rev(repondant), ) +
+  theme_classic() +
+  scale_x_discrete(labels = c("1", "2", "3", "4", "5", "6", "7")) + 
+  scale_fill_manual(values = c("#009063",
+                               "#00b88c", 
+                               "#2d2929", 
+                               "#008fc9",
+                               "#a0d0ee",
+                               "#f6d894",  
+                               "#fae637")) +
+  labs(y = "number of respondents",
+       fill='Rank of importance') +
+  theme(panel.spacing = unit(1, "lines"),
+        strip.background = element_blank(),
+        strip.text = element_text(size = 12),
+        legend.position = "top") 
+  
+p4
+
+ggsave("WALPA_survey_future.png", p4, width = 7, height = 3.5, units = "in")
+ggsave("WALPA_survey_future.jpeg", p4, width = 7, height = 3.5, units = "in")
+
+
+#water: #008fc9
+#shore: #009063
+#littoral/shore: #00b88c
+#sky: #a0d0ee
+#mountain: #2d2929
+#cattail: #f6d894
+#Sun: #fae637
