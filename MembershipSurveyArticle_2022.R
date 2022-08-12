@@ -168,7 +168,7 @@ Q3.data <-as_tibble(comp.data) %>%
   rename("Public outreach/education" = "unlist(outreach)",
          "Host conference" = "unlist(conference)")
 
-Q3.tidy <-Q3.data %>% pivot_longer(cols=c(1,2), names_to = "repondant", values_to = "score")
+Q3.tidy <-Q3.data %>% pivot_longer(cols=c(1,2), names_to = "repondant", values_to = "rank")
 
 # Q3.tidy<-Q3.tidy %>% mutate(score = case_when( 
 #   score == "1 (most important)"  ~ "1" , 
@@ -176,11 +176,11 @@ Q3.tidy <-Q3.data %>% pivot_longer(cols=c(1,2), names_to = "repondant", values_t
 #   TRUE ~ score))
 
 Q3.sum<-Q3.tidy %>% 
-  group_by(repondant, score) %>% 
+  group_by(repondant, rank) %>% 
   summarise(n = n()) %>% 
   drop_na()
 
-p4<-ggplot(Q3.sum, aes(x = score, y = n, fill = score)) +
+p4<-ggplot(Q3.sum, aes(x = rank, y = n, fill = rank)) +
   geom_bar(stat = "identity") + 
   facet_wrap(~fct_rev(repondant), ) +
   theme_classic() +
@@ -196,8 +196,7 @@ p4<-ggplot(Q3.sum, aes(x = score, y = n, fill = score)) +
        fill='Rank of importance') +
   theme(panel.spacing = unit(1, "lines"),
         strip.background = element_blank(),
-        strip.text = element_text(size = 12),
-        legend.position = "top") 
+        strip.text = element_text(size = 12)) 
   
 p4
 
